@@ -3,9 +3,9 @@ package com.example.demo.web
 import com.example.demo.patient.PatientService
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.reset
+import com.nhaarman.mockito_kotlin.whenever
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
-import org.mockito.Mockito
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
@@ -25,7 +25,7 @@ internal class PatientControllerTest {
 
     @Test
     fun test_registerPatient_success() {
-        Mockito.`when`(
+        whenever(
             patientService.registerPatient(
                 name = "홍길동",
                 gender = 'M',
@@ -45,4 +45,6 @@ internal class PatientControllerTest {
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.registerCode").value("202100001"))
     }
+
+    // TODO: 에러 케이스 추가
 }
