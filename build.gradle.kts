@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.4.21"
     kotlin("plugin.spring") version "1.4.21"
     kotlin("plugin.jpa") version "1.4.21"
+    jacoco
 }
 
 group = "com.example"
@@ -37,4 +38,17 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+jacoco {
+    toolVersion = "0.8.6"
+}
+
+tasks.jacocoTestReport {
+    reports {
+        html.isEnabled = true
+        xml.isEnabled = false
+        csv.isEnabled = false
+        html.destination = file("$buildDir/jacoco/jacocoHtml")
+    }
 }
