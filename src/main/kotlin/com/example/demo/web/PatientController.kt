@@ -2,6 +2,7 @@ package com.example.demo.web
 
 import com.example.demo.patient.PatientService
 import com.example.demo.web.request.RegisterPatientRequest
+import com.example.demo.web.request.UpdatePatientRequest
 import com.example.demo.web.response.RegisterPatientResponse
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -24,5 +25,27 @@ class PatientController(val patientService: PatientService) {
                 phone = request.phone
             )
         )
+    }
+
+    @PutMapping("/patient/{patientId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun updatePatient(
+        @RequestHeader(value = "X-HOSPITAL-ID") hospitalId: Long, @RequestBody request: UpdatePatientRequest,
+        @PathVariable patientId: Long
+    ) {
+        patientService.updatePatient(
+            hospitalId = hospitalId,
+            patientId = patientId,
+            name = request.name,
+            gender = request.gender,
+            birthday = request.birthday,
+            phone = request.phone
+        )
+    }
+
+    @DeleteMapping("/patient/{patientId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deletePatient(@RequestHeader(value = "X-HOSPITAL-ID") hospitalId: Long, @PathVariable patientId: Long) {
+        patientService.deletePatient(hospitalId, patientId)
     }
 }

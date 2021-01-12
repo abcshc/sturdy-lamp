@@ -3,6 +3,7 @@ package com.example.demo.patient
 import com.example.demo.hospital.Hospital
 import com.example.demo.hospital.HospitalRepository
 import com.example.demo.hospital.exception.HospitalNotFoundException
+import com.example.demo.patient.exception.PatientNotFoundException
 import org.springframework.stereotype.Service
 import java.time.Year
 import javax.transaction.Transactional
@@ -48,6 +49,28 @@ class PatientServiceImpl(
                     year = year.toString()
                 )
             )
+    }
 
+    override fun updatePatient(
+        hospitalId: Long,
+        patientId: Long,
+        name: String,
+        gender: Char,
+        birthday: String,
+        phone: String
+    ) {
+        val patient: Patient =
+            patientRepository.findByHospitalIdAndId(hospitalId, patientId)
+                .orElseThrow { PatientNotFoundException("환자를 찾을 수 없습니다.") }
+        patient.update(name = name, gender = gender.toString(), birthday = birthday, phone = phone)
+        patientRepository.save(patient)
+    }
+
+    override fun deletePatient(hospitalId: Long, patientId: Long) {
+        val patient: Patient =
+            patientRepository.findByHospitalIdAndId(hospitalId, patientId)
+                .orElseThrow { PatientNotFoundException("환자를 찾을 수 없습니다.") }
+        patient.delete()
+        patientRepository.save(patient)
     }
 }
