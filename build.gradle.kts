@@ -51,6 +51,12 @@ jacoco {
 }
 
 tasks.jacocoTestReport {
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(mapOf("dir" to it, "exclude" to ('A'..'Z').map { a -> "**/Q$a*" }))
+        })
+    )
+
     reports {
         html.isEnabled = true
         xml.isEnabled = false
