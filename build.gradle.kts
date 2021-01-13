@@ -6,6 +6,7 @@ plugins {
     kotlin("jvm") version "1.4.21"
     kotlin("plugin.spring") version "1.4.21"
     kotlin("plugin.jpa") version "1.4.21"
+    kotlin("kapt") version "1.4.21"
     jacoco
 }
 
@@ -24,9 +25,14 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
     runtimeOnly("com.h2database:h2")
+
+    implementation("com.querydsl:querydsl-jpa:4.4.0")
+    kapt("com.querydsl:querydsl-apt:4.4.0:jpa")
+    annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+    annotationProcessor("com.querydsl:querydsl-apt:4.4.0:jpa")
+
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
-
 }
 
 tasks.withType<KotlinCompile> {
