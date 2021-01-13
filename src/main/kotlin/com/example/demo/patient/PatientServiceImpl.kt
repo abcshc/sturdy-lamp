@@ -60,17 +60,22 @@ class PatientServiceImpl(
         phone: String
     ) {
         val patient: Patient =
-            patientRepository.findByHospitalIdAndId(hospitalId, patientId)
-                .orElseThrow { PatientNotFoundException("환자를 찾을 수 없습니다.") }
+            patientRepository.findByHospitalIdAndIdAndDeletedFalse(hospitalId, patientId)
+                ?: throw PatientNotFoundException("환자를 찾을 수 없습니다.")
         patient.update(name = name, gender = gender.toString(), birthday = birthday, phone = phone)
         patientRepository.save(patient)
     }
 
     override fun deletePatient(hospitalId: Long, patientId: Long) {
         val patient: Patient =
-            patientRepository.findByHospitalIdAndId(hospitalId, patientId)
-                .orElseThrow { PatientNotFoundException("환자를 찾을 수 없습니다.") }
+            patientRepository.findByHospitalIdAndIdAndDeletedFalse(hospitalId, patientId)
+                ?: throw PatientNotFoundException("환자를 찾을 수 없습니다.")
         patient.delete()
         patientRepository.save(patient)
+    }
+
+    override fun getPatient(hospitalId: Long, patientId: Long): Patient {
+        return patientRepository.findForDetails(patientId, hospitalId)
+            ?: throw PatientNotFoundException("환자를 찾을 수 없습니다.")
     }
 }

@@ -127,19 +127,18 @@ internal class PatientServiceImplTest {
             nursingInstitutionCode = "10000001",
             chiefName = "홍길동"
         )
-        whenever(patientRepository.findByHospitalIdAndId(1L, 1L))
+        whenever(patientRepository.findByHospitalIdAndIdAndDeletedFalse(1L, 1L))
             .thenReturn(
-                Optional.of(
-                    Patient(
-                        id = 1L,
-                        hospital = hospital,
-                        name = "홍길동",
-                        registerCode = "202100001",
-                        gender = "M",
-                        birthday = "19900101",
-                        phone = "01012341234"
-                    )
+                Patient(
+                    id = 1L,
+                    hospital = hospital,
+                    name = "홍길동",
+                    registerCode = "202100001",
+                    gender = "M",
+                    birthday = "19900101",
+                    phone = "01012341234"
                 )
+
             )
 
         patientService.updatePatient(1L, 1L, "김길동", 'M', "19900101", "01012341234")
@@ -149,7 +148,7 @@ internal class PatientServiceImplTest {
 
     @Test
     fun test_updatePatient_throwPatientNotFoundException() {
-        whenever(patientRepository.findByHospitalIdAndId(1L, 1L)).thenReturn(Optional.empty())
+        whenever(patientRepository.findByHospitalIdAndIdAndDeletedFalse(1L, 1L)).thenReturn(null)
 
         assertThrows<PatientNotFoundException> {
             patientService.updatePatient(
@@ -171,17 +170,15 @@ internal class PatientServiceImplTest {
             nursingInstitutionCode = "10000001",
             chiefName = "홍길동"
         )
-        whenever(patientRepository.findByHospitalIdAndId(1L, 1L)).thenReturn(
-            Optional.of(
-                Patient(
-                    id = 1L,
-                    hospital = hospital,
-                    name = "홍길동",
-                    registerCode = "202100001",
-                    gender = "M",
-                    birthday = "19900101",
-                    phone = "01012341234"
-                )
+        whenever(patientRepository.findByHospitalIdAndIdAndDeletedFalse(1L, 1L)).thenReturn(
+            Patient(
+                id = 1L,
+                hospital = hospital,
+                name = "홍길동",
+                registerCode = "202100001",
+                gender = "M",
+                birthday = "19900101",
+                phone = "01012341234"
             )
         )
 
@@ -192,8 +189,40 @@ internal class PatientServiceImplTest {
 
     @Test
     fun test_deletePatient_throwPatientNotFoundException() {
-        whenever(patientRepository.findByHospitalIdAndId(1L, 1L)).thenReturn(Optional.empty())
+        whenever(patientRepository.findByHospitalIdAndIdAndDeletedFalse(1L, 1L)).thenReturn(null)
 
         assertThrows<PatientNotFoundException> { patientService.deletePatient(1L, 1L) }
+    }
+
+    @Test
+    fun test_getPatient_success() {
+        whenever(patientRepository.findForDetails(1L, 1L)).thenReturn(
+            Patient(
+                id = 1L,
+                hospital = Hospital(
+                    id = 1L,
+                    name = "우리병원",
+                    nursingInstitutionCode = "10000001",
+                    chiefName = "홍길동"
+                ),
+                name = "홍길동",
+                registerCode = "202100001",
+                gender = "M",
+                birthday = "19900101",
+                phone = "01012341234"
+            )
+        )
+
+        patientService.getPatient(1L, 1L)
+
+        verify(patientRepository).findForDetails(1L, 1L)
+    }
+
+
+    @Test
+    fun test_getPatient_throwPatientNotFoundException() {
+        whenever(patientRepository.findForDetails(1L, 1L)).thenReturn(null)
+
+        assertThrows<PatientNotFoundException> { patientService.getPatient(1L, 1L) }
     }
 }

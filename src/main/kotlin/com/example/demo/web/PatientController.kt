@@ -1,8 +1,10 @@
 package com.example.demo.web
 
+import com.example.demo.patient.Patient
 import com.example.demo.patient.PatientService
 import com.example.demo.web.request.RegisterPatientRequest
 import com.example.demo.web.request.UpdatePatientRequest
+import com.example.demo.web.response.GetPatientResponse
 import com.example.demo.web.response.RegisterPatientResponse
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
@@ -47,5 +49,14 @@ class PatientController(val patientService: PatientService) {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     fun deletePatient(@RequestHeader(value = "X-HOSPITAL-ID") hospitalId: Long, @PathVariable patientId: Long) {
         patientService.deletePatient(hospitalId, patientId)
+    }
+
+    @GetMapping("/patient/{patientId}")
+    @ResponseBody
+    fun getPatient(
+        @RequestHeader(value = "X-HOSPITAL-ID") hospitalId: Long,
+        @PathVariable patientId: Long
+    ): GetPatientResponse {
+        return GetPatientResponse(patientService.getPatient(hospitalId, patientId))
     }
 }

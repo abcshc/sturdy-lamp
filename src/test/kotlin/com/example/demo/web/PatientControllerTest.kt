@@ -1,9 +1,12 @@
 package com.example.demo.web
 
+import com.example.demo.hospital.Hospital
 import com.example.demo.hospital.exception.HospitalNotFoundException
+import com.example.demo.patient.Patient
 import com.example.demo.patient.PatientService
 import com.example.demo.patient.exception.PatientNotFoundException
 import com.example.demo.patient.exception.RegisterCodeOutOfBoundsException
+import com.example.demo.visit.Visit
 import com.example.demo.web.exception.HttpErrorControllerAdvice
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.reset
@@ -14,9 +17,11 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 import org.springframework.test.web.servlet.setup.MockMvcBuilders
+import java.time.LocalDateTime
 
 internal class PatientControllerTest {
     private val patientService: PatientService = mock()
@@ -163,5 +168,66 @@ internal class PatientControllerTest {
         ).andExpect(status().isNotFound)
     }
 
-    // TODO: 에러 케이스 추가
+
+    @Test
+    fun test_getPatient_success() {
+        val hospital = Hospital(
+            id = 1L,
+            name = "우리병원",
+            nursingInstitutionCode = "10000001",
+            chiefName = "홍길동"
+        )
+        val patient = Patient(
+            id = 1L,
+            hospital = hospital,
+            name = "홍길동",
+            registerCode = "202100001",
+            gender = "M",
+            birthday = "19900101",
+            phone = "01012341234"
+        )
+        patient.visits = listOf(
+            Visit(1L, hospital, patient, LocalDateTime.of(2021, 1, 1, 0, 0), "3"),
+            Visit(1L, hospital, patient, LocalDateTime.of(2021, 1, 2, 0, 0), "2")
+        )
+
+        whenever(
+            patientService.getPatient(
+                hospitalId = 1L,
+                patientId = 1L
+            )
+        ).thenReturn(patient)
+
+        mockMvc.perform(
+            get("/patient/{patientId}", 1)
+                .header("X-HOSPITAL-ID", "1")
+        )
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.id").value(1))
+            .andExpect(jsonPath("$.name").value("홍길동"))
+            .andExpect(jsonPath("$.gender").value("M"))
+            .andExpect(jsonPath("$.birthday").value("19900101"))
+            .andExpect(jsonPath("$.phone").value("01012341234"))
+            .andExpect(jsonPath("$.visits[0].id").value("1"))
+            .andExpect(jsonPath("$.visits[0].visitTime").value("2021-01-01T00:00:00"))
+            .andExpect(jsonPath("$.visits[0].visitStatusCode").value("3"))
+            .andExpect(jsonPath("$.visits[1].id").value("1"))
+            .andExpect(jsonPath("$.visits[1].visitTime").value("2021-01-02T00:00:00"))
+            .andExpect(jsonPath("$.visits[1].visitStatusCode").value("2"))
+    }
+
+    @Test
+    fun test_getPatient_throwPatientNotFoundException() {
+        whenever(
+            patientService.getPatient(
+                hospitalId = 1L,
+                patientId = 1L
+            )
+        ).thenThrow(PatientNotFoundException())
+
+        mockMvc.perform(
+            get("/patient/{patientId}", 1)
+                .header("X-HOSPITAL-ID", "1")
+        ).andExpect(status().isNotFound)
+    }
 }
