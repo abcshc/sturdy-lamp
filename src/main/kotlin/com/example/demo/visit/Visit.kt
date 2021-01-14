@@ -9,11 +9,20 @@ import javax.persistence.*
 data class Visit(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    val id: Long? = null,
     @ManyToOne
     val hospital: Hospital,
     @ManyToOne
     val patient: Patient,
     val visitTime: LocalDateTime,
-    val visitStatusCode: String
-)
+    var visitStatusCode: String,
+    private var deleted: Boolean = false
+) {
+    fun update(visitStatusCode: String) {
+        this.visitStatusCode = visitStatusCode
+    }
+
+    fun delete() {
+        this.deleted = true
+    }
+}

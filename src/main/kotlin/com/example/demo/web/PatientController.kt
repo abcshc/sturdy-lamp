@@ -1,6 +1,5 @@
 package com.example.demo.web
 
-import com.example.demo.patient.Patient
 import com.example.demo.patient.PatientService
 import com.example.demo.web.request.RegisterPatientRequest
 import com.example.demo.web.request.UpdatePatientRequest
