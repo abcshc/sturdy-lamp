@@ -2,9 +2,11 @@ package com.example.demo.web
 
 import com.example.demo.patient.PatientService
 import com.example.demo.web.request.RegisterPatientRequest
+import com.example.demo.web.request.SearchPatientRequest
 import com.example.demo.web.request.UpdatePatientRequest
 import com.example.demo.web.response.GetPatientResponse
 import com.example.demo.web.response.RegisterPatientResponse
+import com.example.demo.web.response.SearchPatientResponse
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
@@ -57,5 +59,22 @@ class PatientController(val patientService: PatientService) {
         @PathVariable patientId: Long
     ): GetPatientResponse {
         return GetPatientResponse(patientService.getPatient(hospitalId, patientId))
+    }
+
+    @GetMapping("/patient")
+    @ResponseBody
+    fun searchPatient(
+        @RequestHeader(value = "X-HOSPITAL-ID") hospitalId: Long,
+        @RequestBody request: SearchPatientRequest
+    ): SearchPatientResponse {
+        return SearchPatientResponse(
+            patientService.searchPatient(
+                hospitalId,
+                request.type,
+                request.keyword,
+                request.pageSize,
+                request.pageNo
+            )
+        )
     }
 }

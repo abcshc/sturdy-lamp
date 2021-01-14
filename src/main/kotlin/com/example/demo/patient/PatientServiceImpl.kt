@@ -4,6 +4,7 @@ import com.example.demo.hospital.Hospital
 import com.example.demo.hospital.HospitalRepository
 import com.example.demo.hospital.exception.HospitalNotFoundException
 import com.example.demo.patient.exception.PatientNotFoundException
+import com.example.demo.web.request.PatientSearchType
 import org.springframework.stereotype.Service
 import java.time.Year
 import javax.transaction.Transactional
@@ -77,5 +78,15 @@ class PatientServiceImpl(
     override fun getPatient(hospitalId: Long, patientId: Long): Patient {
         return patientRepository.findForDetails(patientId, hospitalId)
             ?: throw PatientNotFoundException("환자를 찾을 수 없습니다.")
+    }
+
+    override fun searchPatient(
+        hospitalId: Long,
+        type: PatientSearchType,
+        keyword: String,
+        pageSize: Long,
+        pageNo: Long
+    ): List<SearchPatientDto> {
+        return patientRepository.searchPatient(hospitalId, type, keyword, pageSize, pageNo)
     }
 }
