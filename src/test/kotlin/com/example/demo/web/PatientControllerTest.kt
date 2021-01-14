@@ -8,29 +8,35 @@ import com.example.demo.patient.exception.PatientNotFoundException
 import com.example.demo.patient.exception.RegisterCodeOutOfBoundsException
 import com.example.demo.visit.Visit
 import com.example.demo.web.exception.HttpErrorControllerAdvice
-import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.reset
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.restdocs.AutoConfigureRestDocs
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.restdocs.headers.HeaderDocumentation.headerWithName
+import org.springframework.restdocs.headers.HeaderDocumentation.requestHeaders
+import org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document
+import org.springframework.restdocs.payload.JsonFieldType
+import org.springframework.restdocs.payload.PayloadDocumentation.*
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
-import org.springframework.test.web.servlet.setup.MockMvcBuilders
 import java.time.LocalDateTime
 
+@WebMvcTest(controllers = [PatientController::class, HttpErrorControllerAdvice::class])
+@AutoConfigureRestDocs
 internal class PatientControllerTest {
-    private val patientService: PatientService = mock()
-    private val patientController: PatientController = PatientController(patientService)
-    private val httpErrorControllerAdvice: HttpErrorControllerAdvice = HttpErrorControllerAdvice()
-    private val mockMvc: MockMvc = MockMvcBuilders
-        .standaloneSetup(patientController)
-        .setControllerAdvice(httpErrorControllerAdvice)
-        .build()
+    @MockBean
+    private lateinit var patientService: PatientService
+
+    @Autowired
+    private lateinit var mockMvc: MockMvc
 
     @AfterEach
     fun tearDown() {
@@ -58,6 +64,24 @@ internal class PatientControllerTest {
         )
             .andExpect(status().isCreated)
             .andExpect(jsonPath("$.registerCode").value("202100001"))
+            .andDo(
+                document(
+                    "register-patient",
+                    requestHeaders(
+                        headerWithName("X-HOSPITAL-ID")
+                            .description("병원 ID")
+                    ),
+                    requestFields(
+                        fieldWithPath("name").type(JsonFieldType.STRING).description("이름"),
+                        fieldWithPath("gender").type(JsonFieldType.STRING).description("성별"),
+                        fieldWithPath("birthday").type(JsonFieldType.STRING).description("생년월일").optional(),
+                        fieldWithPath("phone").type(JsonFieldType.STRING).description("전화번호").optional()
+                    ),
+                    responseFields(
+                        fieldWithPath("registerCode").type(JsonFieldType.STRING).description("환자 등록 번호")
+                    )
+                )
+            )
     }
 
     @Test

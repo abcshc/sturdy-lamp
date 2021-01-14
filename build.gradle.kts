@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
     id("org.springframework.boot") version "2.4.1"
     id("io.spring.dependency-management") version "1.0.10.RELEASE"
+    id("org.asciidoctor.convert") version "1.6.1"
     kotlin("jvm") version "1.4.21"
     kotlin("plugin.spring") version "1.4.21"
     kotlin("plugin.jpa") version "1.4.21"
@@ -34,6 +35,9 @@ dependencies {
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("com.nhaarman:mockito-kotlin:1.6.0")
+
+    testImplementation("org.springframework.restdocs:spring-restdocs-mockmvc")
+    asciidoctor("org.springframework.restdocs:spring-restdocs-asciidoctor")
 }
 
 tasks.withType<KotlinCompile> {
@@ -43,8 +47,23 @@ tasks.withType<KotlinCompile> {
     }
 }
 
+val snippetsDir = file("build/generated-snippets")
+
 tasks.withType<Test> {
+    outputs.dir(snippetsDir)
     useJUnitPlatform()
+}
+
+tasks.asciidoctor {
+    inputs.dir(snippetsDir)
+    dependsOn(tasks.test)
+}
+
+tasks.bootJar {
+    dependsOn(tasks.asciidoctor)
+    from("${tasks.asciidoctor.get().outputDir}/html5") {
+        into("static/docs")
+    }
 }
 
 jacoco {
