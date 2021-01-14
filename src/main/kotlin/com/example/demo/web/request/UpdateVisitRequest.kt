@@ -1,3 +1,5 @@
 package com.example.demo.web.request
 
-class UpdateVisitRequest(val visitStatusCode: String)
+import com.example.demo.visit.VisitStatus
+
+class UpdateVisitRequest(val visitStatus: VisitStatus)

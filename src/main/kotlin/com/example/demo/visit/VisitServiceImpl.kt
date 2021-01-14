@@ -29,10 +29,10 @@ class VisitServiceImpl(
         ).id!!
     }
 
-    override fun updateVisit(hospitalId: Long, visitId: Long, visitStatusCode: String) {
+    override fun updateVisit(hospitalId: Long, visitId: Long, visitStatus: VisitStatus) {
         val visit = visitRepository.findByHospitalIdAndIdAndDeletedFalse(hospitalId, visitId)
             ?: throw VisitNotFoundException("방문 정보를 찾을 수 없습니다.")
-        visit.update(visitStatusCode)
+        visit.update(visitStatus.code)
         visitRepository.save(visit)
     }
 

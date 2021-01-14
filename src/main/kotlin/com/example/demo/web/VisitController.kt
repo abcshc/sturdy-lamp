@@ -28,7 +28,7 @@ class VisitController(private val visitService: VisitService) {
         @PathVariable visitId: Long,
         @RequestBody request: UpdateVisitRequest
     ) {
-        visitService.updateVisit(hospitalId, visitId, request.visitStatusCode)
+        visitService.updateVisit(hospitalId, visitId, request.visitStatus)
     }
 
     @DeleteMapping("/visit/{visitId}")

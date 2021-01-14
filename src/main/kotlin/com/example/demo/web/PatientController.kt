@@ -10,6 +10,7 @@ import com.example.demo.web.response.SearchPatientResponse
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
+import javax.validation.Valid
 
 @Controller
 class PatientController(val patientService: PatientService) {
@@ -17,7 +18,8 @@ class PatientController(val patientService: PatientService) {
     @ResponseBody
     @ResponseStatus(HttpStatus.CREATED)
     fun registerPatient(
-        @RequestHeader(value = "X-HOSPITAL-ID") hospitalId: Long, @RequestBody request: RegisterPatientRequest
+        @RequestHeader(value = "X-HOSPITAL-ID") hospitalId: Long,
+        @Valid @RequestBody request: RegisterPatientRequest
     ): RegisterPatientResponse {
         return RegisterPatientResponse(
             patientService.registerPatient(
