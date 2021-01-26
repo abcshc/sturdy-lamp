@@ -9,14 +9,16 @@ import org.springframework.stereotype.Repository
 @Repository
 class PatientRepositoryCustomImpl(private val jpaQueryFactory: JPAQueryFactory) : PatientRepositoryCustom {
     private val patient: QPatient = QPatient.patient
+    private val visit = QVisit("visit")
     override fun findForDetails(hospitalId: Long, id: Long): Patient? {
         return jpaQueryFactory.selectFrom(patient)
-            .leftJoin(patient.visits).fetchJoin()
+            .leftJoin(patient.visits, visit).fetchJoin()
             .where(
                 patient.id.eq(id)
                     .and(patient.hospital.id.eq(hospitalId))
                     .and(patient.deleted.isFalse)
-            ).fetchOne()
+            ).orderBy(visit.visitTime.desc())
+            .fetchOne()
     }
 
     override fun searchPatient(
@@ -29,7 +31,7 @@ class PatientRepositoryCustomImpl(private val jpaQueryFactory: JPAQueryFactory) 
         val condition: Predicate = when (type) {
             PatientSearchType.NAME -> patient.name.like("%$keyword%")
             PatientSearchType.REGISTER_CODE -> patient.registerCode.like("%$keyword%")
-            PatientSearchType.BIRTHDAY -> patient.registerCode.like("%$keyword%")
+            PatientSearchType.BIRTHDAY -> patient.birthday.like("%$keyword%")
         }
         val visit = QVisit("visit")
         return jpaQueryFactory.select(
@@ -48,6 +50,7 @@ class PatientRepositoryCustomImpl(private val jpaQueryFactory: JPAQueryFactory) 
                     .and(patient.deleted.isFalse)
                     .and(condition)
             )
+            .orderBy(patient.registerCode.desc())
             .groupBy(patient.id)
             .offset((pageNo - 1) * pageSize)
             .limit(pageSize)

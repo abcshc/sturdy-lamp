@@ -21,8 +21,8 @@ data class Patient(
     @Column(length = 20, nullable = true)
     var phone: String?,
     private var deleted: Boolean = false,
-    @OneToMany(mappedBy = "patient")
-    var visits: List<Visit> = ArrayList()
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "patient")
+    var visits: List<Visit> = listOf()
 ) {
     fun update(name: String, gender: String, birthday: String, phone: String) {
         this.name = name

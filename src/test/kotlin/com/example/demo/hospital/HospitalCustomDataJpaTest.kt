@@ -1,17 +1,15 @@
 package com.example.demo.hospital
 
-import com.example.demo.RepositoryTest
+import com.example.demo.CustomDataJpaTest
+import com.example.demo.inputTestData
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 
-@RepositoryTest
-internal class HospitalRepositoryTest {
-    @Autowired
-    lateinit var hospitalRepository: HospitalRepository
+@CustomDataJpaTest
+internal class HospitalCustomDataJpaTest(private val hospitalRepository: HospitalRepository) {
 
     @Test
-    fun test_saveHospital_success() {
+    fun test_saveHospital_through_inputTestData_success() {
         val hospital = hospitalRepository.inputTestData("우리병원", "10000001", "홍길동")
 
         assertEquals(1, hospital.id)
